@@ -1,3 +1,4 @@
 /Output/*
 nnet_hub.emSession
 nnet_hub_Debug.jlink
+nnet_hub_Release.jlink
