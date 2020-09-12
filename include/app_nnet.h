@@ -10,6 +10,7 @@ typedef struct {
     uint16_t adv_duration;
 
     uint8_t aes_key[16];
+    uint32_t start_counter;
 
 } nnet_config_t;
 
