@@ -4,14 +4,10 @@
 #include "app_error.h"
 #include "ble_nus.h"
 #include "ble_advdata.h"
-//#include "ble_advertising.h"
 
 #define BLE_COMBINED_ADV_BLE_OBSERVER_PRIO 1                                    /**< Priority of observer (need for get ble events. */
 
 #define ADV_PACK_MANUF_ID               0x0059                                  /**< First 2 bytes of manuf data. */
-#define BLE_RADIO_POWER                 8                                       /**< Radio power for Long Range. */
-#define APP_ADV_INTERVAL                64                                      /**< The advertising interval (in units of 0.625 ms). */
-#define APP_ADV_DURATION                50                                      /**< The advertising duration in units of 10 milliseconds. */
 #define ADVERTISING_MANUF_DATA_SIZE     17                                      /**< Size of advertising_manuf_data buffer for handling manuf data. */
 
 void ble_evt_combined_adv_handler(ble_evt_t const * p_evt, void * p_context);
@@ -20,20 +16,13 @@ NRF_SDH_BLE_OBSERVER(m_ble_combined_advertising_observer, BLE_COMBINED_ADV_BLE_O
 
 static uint8_t m_adv_handle = BLE_GAP_ADV_SET_HANDLE_NOT_SET;                   /**< Advertising handle used to identify an advertising set. */
 static uint8_t enc_adv_buf[BLE_GAP_ADV_SET_DATA_SIZE_MAX];                      /**< Buffer for storing an encoded advertising set. */
-static uint8_t enc_sr_buf[BLE_GAP_ADV_SET_DATA_SIZE_MAX];                       /**< Buffer for storing an encoded scan data. */
-static uint8_t advertising_manuf_data[ADVERTISING_MANUF_DATA_SIZE] = {0};       /**< Buffer for handling manafacturer margin. */
 static ble_gap_adv_data_t m_adv_data =                                          /**< Pointer to enc_adv_buf / enc_sr_buf (need for sdk setup) */
 {
     .adv_data.p_data = enc_adv_buf,
-    .scan_rsp_data.p_data = enc_sr_buf,
+    .scan_rsp_data.p_data = NULL,
     .adv_data.len = BLE_GAP_ADV_SET_DATA_SIZE_MAX,
     .scan_rsp_data.len = 0
 };
-static ble_uuid_t m_adv_uuids[]          =                                      /**< Universally unique service identifier. */
-{
-    {BLE_UUID_NUS_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN}
-};
-static bool is_advertising_started = false;
 
 void advertising_init(uint32_t adv_interval, uint16_t adv_duration)
 {
@@ -53,11 +42,10 @@ void advertising_init(uint32_t adv_interval, uint16_t adv_duration)
 
 void advertising_start(void)
 {
-    if (is_advertising_started) return;
     ret_code_t err_code = sd_ble_gap_adv_start(m_adv_handle, 1);
     APP_ERROR_CHECK(err_code);
-
-    is_advertising_started = true;
+    err_code = sd_ble_gap_tx_power_set(BLE_GAP_TX_POWER_ROLE_ADV, m_adv_handle, 4);
+    APP_ERROR_CHECK(err_code);
 }
 
 
@@ -68,7 +56,6 @@ void set_manuf(uint8_t* data, uint16_t size) //function for setup manuf data (af
     ret_code_t err_code;
 
     ble_advdata_t advdata = {0};
-    ble_advdata_t srdata = {0};
     ble_advdata_manuf_data_t manuf_data = {0};
     
     manuf_data.company_identifier = ADV_PACK_MANUF_ID;
@@ -89,8 +76,7 @@ void ble_evt_combined_adv_handler(ble_evt_t const * p_ble_evt, void * p_context)
 {
     switch (p_ble_evt->header.evt_id)
     {
-        case BLE_GAP_EVT_ADV_SET_TERMINATED: //event for switch betwen ble5 and ble4 after duration
-            is_advertising_started = false;
+        case BLE_GAP_EVT_ADV_SET_TERMINATED: 
             break;
         default:
             break;

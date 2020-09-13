@@ -29,6 +29,7 @@
 
 #include "app_advertising.h"
 #include "app_nnet.h"
+#include "nrf_delay.h"
 
 #define APP_BLE_CONN_CFG_TAG            1                                           /**< A tag identifying the SoftDevice BLE configuration. */
 
@@ -440,21 +441,26 @@ int main(void)
     
     nnet_config_t nnet_config = 
     {
-        .adv_interval = 64,
-        .adv_duration = 5000,
-        .aes_key = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}
+        .adv_interval = MSEC_TO_UNITS(20, UNIT_0_625_MS),
+        .adv_duration = MSEC_TO_UNITS(300, UNIT_10_MS),
+        .aes_key = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15},
+        .start_counter = 30
     };
 
     nnet_init(&nnet_config);
-    nnet_send_switch_message(&nnet_config, 0xFF, 1); 
+    
 
     // Start execution.
     printf("\r\nUART started.\r\n");
     NRF_LOG_INFO("Debug logging for UART over RTT started.");
 
     // Enter main loop.
+    bool state = 0;
     for (;;)
     {
+        state = !state;
         idle_state_handle();
+        nnet_send_switch_message(&nnet_config, 0xFF, state); 
+        nrf_delay_ms(300);
     }
 }
