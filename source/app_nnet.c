@@ -16,6 +16,7 @@ static uint32_t nnet_counter = 0;
 
 void nnet_init(nnet_config_t* config)
 {
+    nnet_counter = config->start_counter;
     cf_aes_init(&cf_aes_config, config->aes_key, 16);
     nnet_counter = config->start_counter;
     advertising_init(config->adv_interval, config->adv_duration);
