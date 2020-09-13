@@ -96,6 +96,7 @@
       <file file_name="include/sdk_config.h" />
       <file file_name="source/app_advertising.c" />
       <file file_name="source/app_nnet.c" />
+      <file file_name="source/uart_commands.c" />
     </folder>
     <folder Name="nRF_Segger_RTT">
       <file file_name="../../../external/segger_rtt/SEGGER_RTT.c" />
