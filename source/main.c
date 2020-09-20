@@ -24,7 +24,7 @@
 #define APP_BLE_OBSERVER_PRIO           3                                           /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 
 #define DEAD_BEEF                       0xDEADBEEF                                  /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
-
+#define FIRMWARE_VERSION 1
 
 void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
 {
@@ -74,7 +74,7 @@ nnet_config_t nnet_config =
         .adv_interval = MSEC_TO_UNITS(20, UNIT_0_625_MS),
         .adv_duration = MSEC_TO_UNITS(300, UNIT_10_MS),
         .aes_key = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15},
-        .start_counter = 30
+        .start_counter = 1005
     };
 
 void commands_handler(char * command_line)
@@ -105,8 +105,6 @@ int main(void)
     
     uart_commands_init(8, 6, commands_handler);
 
-    // Start execution.
-    printf("\r\nUART started.\r\n");
     NRF_LOG_INFO("Debug logging for UART over RTT started.");
 
     // Enter main loop.

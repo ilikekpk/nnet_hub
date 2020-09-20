@@ -43,6 +43,7 @@ void advertising_init(uint32_t adv_interval, uint16_t adv_duration)
 void advertising_start(void)
 {
     ret_code_t err_code = sd_ble_gap_adv_start(m_adv_handle, 1);
+    if (err_code == NRF_ERROR_INVALID_STATE) return;
     APP_ERROR_CHECK(err_code);
     err_code = sd_ble_gap_tx_power_set(BLE_GAP_TX_POWER_ROLE_ADV, m_adv_handle, 4);
     APP_ERROR_CHECK(err_code);
